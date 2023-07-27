@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Robot Path Drawing</title>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <div class="container">
+      <h1>Robot Path Drawing</h1>
+      <form id="input-form" action="save_path.php" method="POST">
+        <div class="form-group">
+          <label for="distance-input">Distance (in meters):</label>
+          <input type="number" id="distance-input" name="distance" min="1" required>
+        </div>
+        <div class="form-group">
+          <label for="direction-input">Direction:</label>
+          <select id="direction-input" name="direction" required>
+            <option value="north">North</option>
+            <option value="south">South</option>
+            <option value="east">East</option>
+            <option value="west">West</option>
+          </select>
+        </div>
+        <button type="submit" class="button">Draw Path</button>
+      </form>
+      <div class="canvas-container">
+        <canvas id="canvas"></canvas>
+      </div>
+    </div>
+    <script src="script.js"></script>
+    <script>
+      let paths = [];
+    </script>
+    <script>
+      const urlParams = new URLSearchParams(window.location.search);
+      const pathsJson = urlParams.get('paths');
+
+      if (pathsJson) {
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        const paths = JSON.parse(decodeURIComponent(pathsJson));
+        let lastX = canvas.width / 2;
+        let lastY = canvas.height / 2;
+
+        for (let i = paths.length - 1; i >= 0; i--) {
+          const path = paths[i];
+          const distance = path.distance;
+          const direction = path.direction;
+
+          ctx.strokeStyle = 'red';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+
+          switch (direction) {
+            case 'north':
+              ctx.moveTo(lastX, lastY - (distance * 10));
+              ctx.lineTo(lastX, lastY);
+              lastY = lastY - (distance * 10);
+              break;
+            case 'south':
+              ctx.moveTo(lastX, lastY);
+              ctx.lineTo(lastX, lastY + (distance * 10));
+              lastY = lastY + (distance * 10);
+              break;
+            case 'east':
+              ctx.moveTo(lastX, lastY);
+              ctx.lineTo(lastX + (distance * 10), lastY);
+              lastX = lastX + (distance * 10);
+              break;
+            case 'west':
+              ctx.moveTo(lastX - (distance * 10), lastY);
+              ctx.lineTo(lastX, lastY);
+              lastX = lastX - (distance * 10);
+              break;
+          }
+
+          ctx.stroke();
+        }
+      }
+    </script>
+  </body>
+</html>
